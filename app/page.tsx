@@ -9,9 +9,14 @@ export default function Home() {
   ]);
 
   const addItem = () => {
-    setTransactions([...transactions, {id: Date.now().toString() ,amount: 10, category: "Test item"}]);
+    setTransactions([...transactions, {id: Math.random().toString() ,amount: 10, category: "Test item"}]);
   }
 
+  const deleteItem = (id: string) => {
+    console.log("button clicked!");
+    setTransactions(transactions.filter(t => t.id !== id))
+
+  }
   const total = transactions.reduce((acc, current) => acc + current.amount, 0);
 
   return (
@@ -19,7 +24,7 @@ export default function Home() {
     <h1 className="text-4xl text-green-600">Finance app</h1>
     <button className="bg-green-500 p-2 rounded text-white" onClick={() => addItem()}>add item</button>
     <ul>{transactions.map((m) => 
-    <li key={m.id}>{ m.category }: { m.amount } </li>
+    <li key={m.id}>{ m.category }: { m.amount } <button className="bg-red-500 px-3 py-1 rounded" onClick={() => deleteItem(m.id)}>X</button></li>
     )}</ul>
     <p>total: { total }</p>
     </main>
