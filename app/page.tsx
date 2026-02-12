@@ -12,9 +12,14 @@ export default function Home() {
   const [amount, setAmount] = useState<number>(0);
 
   const addItem = () => {
+    if(category !== '' && amount !== 0){
     setTransactions([...transactions, {id: Math.random().toString() ,amount: amount, category: category}]);
     setCategory('');
     setAmount(0);
+    }
+    else{
+      alert("Please enter a name and amount");
+    }
   }
 
   const deleteItem = (id: string) => {
