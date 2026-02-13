@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react";
 import { Transaction } from "./types/transaction";
+import TransactionItem from "./components/TransactionItem";
 
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>( [
@@ -36,7 +37,7 @@ export default function Home() {
     <input className="border-2 border-black m-1" type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))}/>
     <button className="bg-green-500 p-2 rounded text-white" onClick={() => addItem()}>add item</button>
     <ul>{transactions.map((m) => 
-    <li key={m.id}>{ m.category }: { m.amount } <button className="bg-red-500 px-3 py-1 rounded" onClick={() => deleteItem(m.id)}>X</button></li>
+  <TransactionItem key={m.id} transaction={m} onDelete={deleteItem}/>
     )}</ul>
     <p>total: { total }</p>
     </main>
