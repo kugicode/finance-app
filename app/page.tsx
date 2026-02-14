@@ -5,8 +5,8 @@ import TransactionItem from "./components/TransactionItem";
 
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>( [
-    {id: "1", amount: 5, category: "Meal"},
-    {id: "2", amount: 5, category: "Coffee"},
+    {id: "1", amount: 5, category: "Meal", date: new Date().toLocaleDateString()},
+    {id: "2", amount: 5, category: "Coffee", date: new Date().toLocaleDateString()},
      
   ]);
   const [category, setCategory] = useState<string>('');
@@ -14,7 +14,7 @@ export default function Home() {
 
   const addItem = () => {
     if(category !== '' && amount !== 0){
-    setTransactions([...transactions, {id: Math.random().toString() ,amount: amount, category: category}]);
+    setTransactions([...transactions, {id: Math.random().toString() ,amount: amount, category: category, date: new Date().toLocaleDateString()}]);
     setCategory('');
     setAmount(0);
     }
