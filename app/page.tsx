@@ -39,7 +39,7 @@ export default function Home() {
     <ul>{transactions.map((m) => 
   <TransactionItem key={m.id} transaction={m} onDelete={deleteItem}/>
     )}</ul>
-    <p>total: { total }</p>
+    <p className="text-2xl font-bold">total: { total }</p>
     </main>
   );
 }
