@@ -30,7 +30,8 @@ export default function Home() {
 
   }
   const total = transactions.reduce((acc, current) => current.type === 'income' ? acc + current.amount : acc - current.amount, 0);
-
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, current) => acc + current.amount, 0);
+  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, current) => acc + current.amount, 0);
   return (
     <main className="flex flex-col h-screen items-center justify-center">
     <h1 className="text-4xl text-green-600">Finance app</h1>
@@ -45,6 +46,8 @@ export default function Home() {
   <TransactionItem key={m.id} transaction={m} onDelete={deleteItem}/>
     )}</ul>
     <p className="text-2xl font-bold">total: { total }</p>
+    <p className="text-2xl font-bold">total income: { totalIncome }</p>
+    <p className="text-2xl font-bold">total expense: { totalExpense }</p>
     </main>
   );
 }
