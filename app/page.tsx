@@ -33,10 +33,15 @@ export default function Home() {
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, current) => acc + current.amount, 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, current) => acc + current.amount, 0);
   return (
-    <main className="flex flex-col h-screen items-center justify-center">
+    <main className="flex flex-col h-screen items-center justify-center bg-gray-100">
     <h1 className="text-4xl text-green-600">Finance app</h1>
     <input className="border-2 border-black m-1" type="text" value={category} onChange={(e) => setCategory(e.target.value)}/>
     <input className="border-2 border-black m-1" type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))}/>
+    <div className="flex flex-row gap-4 mb-6">
+    <p className="text-2xl font-bold bg-white shadow-md p-4 rounded-4xl flex-1">total: { total }</p>
+    <p className="text-2xl font-bold bg-white shadow-md p-4 rounded-4xl flex-1 text-green-600">total income: { totalIncome }</p>
+    <p className="text-2xl font-bold bg-white shadow-md p-4 rounded-4xl flex-1 text-red-600">total expense: { totalExpense }</p>
+    </div>
     <select value={type} onChange={(e) => setType(e.target.value as 'income' | 'expense')}>
       <option value="income">income</option>
       <option value="expense">expense</option>
@@ -45,9 +50,6 @@ export default function Home() {
     <ul>{transactions.map((m) =>
   <TransactionItem key={m.id} transaction={m} onDelete={deleteItem}/>
     )}</ul>
-    <p className="text-2xl font-bold">total: { total }</p>
-    <p className="text-2xl font-bold">total income: { totalIncome }</p>
-    <p className="text-2xl font-bold">total expense: { totalExpense }</p>
     </main>
   );
 }
