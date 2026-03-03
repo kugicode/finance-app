@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-
 export async function GET() {
     try {
         //We use await to wait for the database to be successful! and clientPromise contains the MongoClient object, so we could use tools like .db() .collection() etc.
@@ -18,5 +17,29 @@ export async function GET() {
         console.error("GET Error:", error);
         //send error as json!
         return NextResponse.json({ error: "Failed to fetch transactions" }, { status: 500 });
+    }
+}
+
+export async function POST(request: Request) {
+    try{
+
+    const newTransaction = await request.json();
+    //await the client promise.
+    const client = await clientPromise;
+    const db = client.db("Finance-App");
+    const collection = db.collection("transactions");
+    const { amount, category, type } = newTransaction;
+    //checking so reponse won't go throught until all these categories are right.
+    if(!amount || !category || !type){
+        return NextResponse.json({ error: "Wait! You forgot some fields!" }, {status: 400});
+    }
+    //using inserOne to insert 1 item to transactions.
+    const transactions = await collection.insertOne(newTransaction);
+    return NextResponse.json(transactions, {status: 201});
+    }
+    catch(error){
+        //error status 500
+        console.error("POST Error:", error);
+        return NextResponse.json({ error: "Failed to save transaction" }, {status: 500})
     }
 }
