@@ -1,45 +1,66 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
+/**
+ * GET: Fetches all transactions from the database.
+ */
 export async function GET() {
     try {
-        //We use await to wait for the database to be successful! and clientPromise contains the MongoClient object, so we could use tools like .db() .collection() etc.
+        // 1. Establish database connection
         const client = await clientPromise;
-        //db is our database we are fetching it!
         const db = client.db("Finance-App");
-        //Now we are fetching the collection of that database
         const collection = db.collection("transactions");
-        //We are getting all the transactions in the trasnactions collection find({}) the {} means all.
+
+        // 2. Retrieve all documents as an array
         const transactions = await collection.find({}).toArray();
-        //return as json
+
         return NextResponse.json(transactions);
     } catch (error) {
         console.error("GET Error:", error);
-        //send error as json!
-        return NextResponse.json({ error: "Failed to fetch transactions" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Failed to fetch transactions" },
+            { status: 500 }
+        );
     }
 }
 
+/**
+ * POST: Validates and saves a new transaction.
+ */
 export async function POST(request: Request) {
-    try{
+    try {
+        // 1. Unpack the incoming request body
+        const body = await request.json();
+        const { amount, category, type, date } = body;
 
-    const newTransaction = await request.json();
-    //await the client promise.
-    const client = await clientPromise;
-    const db = client.db("Finance-App");
-    const collection = db.collection("transactions");
-    const { amount, category, type } = newTransaction;
-    //checking so reponse won't go throught until all these categories are right.
-    if(!amount || !category || !type){
-        return NextResponse.json({ error: "Wait! You forgot some fields!" }, {status: 400});
-    }
-    //using inserOne to insert 1 item to transactions.
-    const transactions = await collection.insertOne(newTransaction);
-    return NextResponse.json(transactions, {status: 201});
-    }
-    catch(error){
-        //error status 500
+            //Robust validation! check if fields are missing OR have wrong data!
+            if(
+                typeof amount !=='number' || amount <= 0 ||
+                !category || category.trim() === "" ||
+                !['income', 'expense'].includes(type) ||
+                !date
+            ){
+            return NextResponse.json(
+                { error: "Wait! You forgot some fields!" },
+                { status: 400 }
+            )
+        };
+        // 3. Database connection
+        const client = await clientPromise;
+        const db = client.db("Finance-App");
+        const collection = db.collection("transactions");
+
+        // 4. Create the new document (saving only the fields we want)
+        const newEntry = { amount, category, type, date };
+        const result = await collection.insertOne(newEntry);
+
+        // 5. Return the result with a 201 "Created" status
+        return NextResponse.json(result, { status: 201 });
+    } catch (error) {
         console.error("POST Error:", error);
-        return NextResponse.json({ error: "Failed to save transaction" }, {status: 500})
+        return NextResponse.json(
+            { error: "Failed to save transaction" },
+            { status: 500 }
+        );
     }
 }
