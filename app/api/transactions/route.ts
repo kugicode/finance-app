@@ -51,7 +51,7 @@ export async function POST(request: Request) {
         const collection = db.collection("transactions");
 
         // 4. Create the new document (saving only the fields we want)
-        const newEntry = { amount, category, type, date };
+        const newEntry = { amount, category, type, date: new Date(date) };
         const result = await collection.insertOne(newEntry);
 
         // 5. Return the result with a 201 "Created" status
@@ -64,3 +64,9 @@ export async function POST(request: Request) {
         );
     }
 }
+
+export async function DELETE(
+request: Request,
+{params}: {params: Promise<{id:string}>}
+
+)
