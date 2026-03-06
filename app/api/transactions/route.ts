@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
 /**
  * GET: Fetches all transactions from the database.
@@ -65,8 +66,22 @@ export async function POST(request: Request) {
     }
 }
 
-export async function DELETE(
-request: Request,
-{params}: {params: Promise<{id:string}>}
-
-)
+export async function DELETE(request: Request,){
+    try{
+    //Grab the ID from the URL search query!
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    //Database connection
+    const client = await clientPromise;
+    const db = client.db("Finance-App");
+    const collection = db.collection("transactions");
+        //Delete this id requested from the collection!
+    const result = await collection.deleteOne({_id: new ObjectId(id as string)});
+    return NextResponse.json({message: "Transaction deleted sucessfully", result});
+    }
+    catch(error){
+        console.error("DELETE Error:", error);
+        return NextResponse.json({error: "Failed to delete transaction"}, {status: 500});
+    }
+    
+}
