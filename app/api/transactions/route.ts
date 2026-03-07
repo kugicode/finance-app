@@ -14,8 +14,9 @@ export async function GET() {
 
         // 2. Retrieve all documents as an array
         const transactions = await collection.find({}).toArray();
-
-        return NextResponse.json(transactions);
+        //Making the object _id to a string called id so frontend can talk to it!
+        const mappedTransactions = transactions.map(item => ({...item, id: item._id.toString()}))
+        return NextResponse.json(mappedTransactions);
     } catch (error) {
         console.error("GET Error:", error);
         return NextResponse.json(
