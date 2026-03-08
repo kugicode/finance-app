@@ -1,17 +1,29 @@
 "use client"
 import { useState } from "react";
+import { useEffect } from "react";
 import { Transaction } from "./types/transaction";
 import TransactionItem from "./components/TransactionItem";
 
 export default function Home() {
-  const [transactions, setTransactions] = useState<Transaction[]>( [
-    {id: "1", amount: 5, category: "Meal", date: new Date().toLocaleDateString(), type: 'expense'},
-    {id: "2", amount: 5, category: "Coffee", date: new Date().toLocaleDateString(), type: 'expense'},
-     
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
   const [category, setCategory] = useState<string>('');
   const [amount, setAmount] = useState<number>(0);
   const [type, setType] = useState<'income'|'expense'>('expense');
+
+useEffect(() =>  {
+const loadData = async () => {
+  //Use await to fetch...
+  const res = await fetch('/api/transactions');
+  //turn it into json format
+  const data = await res.json();
+  //Update your state!
+  setTransactions(data);
+}
+loadData();
+
+}, []);
+  
 
   const addItem = () => {
     if(category !== '' && amount !== 0){
@@ -33,7 +45,7 @@ export default function Home() {
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, current) => acc + current.amount, 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, current) => acc + current.amount, 0);
   return (
-    <main className="flex flex-col h-screen items-center justify-center bg-gray-100">
+    <main className="flex flex-col min-h-screen items-center justify-center bg-gray-100">
     <h1 className="text-4xl text-green-600">Finance app</h1>
     <input className="border-2 border-black m-1" type="text" value={category} onChange={(e) => setCategory(e.target.value)}/>
     <input className="border-2 border-black m-1" type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))}/>
