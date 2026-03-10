@@ -11,7 +11,6 @@ export default function Home() {
   const [amount, setAmount] = useState<number>(0);
   const [type, setType] = useState<'income'|'expense'>('expense');
 
-useEffect(() =>  {
 const loadData = async () => {
   //Use await to fetch...
   const res = await fetch('/api/transactions');
@@ -20,14 +19,21 @@ const loadData = async () => {
   //Update your state!
   setTransactions(data);
 }
-loadData();
 
+useEffect(() =>  {
+
+loadData();
 }, []);
   
 
-  const addItem = () => {
+  const addItem = async () => {
     if(category !== '' && amount !== 0){
-    setTransactions([...transactions, {id: Math.random().toString() ,amount: amount, category: category, date: new Date().toLocaleDateString(), type: type}]);
+      const res = await fetch('/api/transactions',{
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount, category, type, date: new Date() })
+      });
+      await loadData();
     setCategory('');
     setAmount(0);
     }
