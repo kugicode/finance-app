@@ -27,13 +27,18 @@ loadData();
   
 
   const addItem = async () => {
+    //Checking if inputs boxes are empty.
     if(category !== '' && amount !== 0){
-      const res = await fetch('/api/transactions',{
+      //Call the API to save the new transaction
+      await fetch('/api/transactions',{
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      //Sending amount, category, type and date to the database!
       body: JSON.stringify({ amount, category, type, date: new Date() })
       });
+      //Wait for the save, then refresh the list from the database!
       await loadData();
+      //Clear the inputs
     setCategory('');
     setAmount(0);
     }
@@ -42,9 +47,10 @@ loadData();
     }
   }
 
-  const deleteItem = (id: string) => {
-    console.log("button clicked!");
-    setTransactions(transactions.filter(t => t.id !== id));
+  const deleteItem = async (id: string) => {
+    //Call the API to delete an item with its unique ID.
+    await fetch(`/api/transactions?id=${id}`, {method: 'DELETE'} );
+    await loadData();
 
   }
   const total = transactions.reduce((acc, current) => current.type === 'income' ? acc + current.amount : acc - current.amount, 0);
