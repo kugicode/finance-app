@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { Transaction } from "./types/transaction";
 import TransactionItem from "./components/TransactionItem";
+import { Tag, CircleDollarSign, TrendingDown, TrendingUp, Plus } from "lucide-react";
 
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -66,14 +67,28 @@ loadData();
     <p className="text-xl font-medium bg-white shadow-sm border border-gray-100 p-6 rounded-2xl text-red-600">
       Total expense: <span className="block text-3xl font-bold mt-2">{ totalExpense }</span></p>
     </div>
-    <div className="flex flex-col items-center">
-    <input className="border border-gray-500 m-1 " type="text" placeholder="Enter category..." value={category} onChange={(e) => setCategory(e.target.value)}/>
-    <input className="border border-gray-500 m-1 " type="number" placeholder="Enter price..." value={amount} onChange={(e) => setAmount(Number(e.target.value))}/>
-    <select className="border border-gray-500 m-1 " value={type} onChange={(e) => setType(e.target.value as 'income' | 'expense')}>
+    <div className="flex flex-col items-center bg-white rounded-2xl shadow-md mb-1.5 py-1.5 max-w-3xl mx-auto">
+      <div className="flex items-center ">
+      <Tag className="text-gray-400 mr-2 " />
+    <input className="border border-gray-500 m-1 rounded-lg px-4 py-2 focus:ring-2" type="text" 
+    placeholder="Enter category..." value={category} onChange={(e) => setCategory(e.target.value)}/>
+    </div>
+      <div className="flex items-center">
+        <CircleDollarSign className="text-gray-400 mr-2"  />
+    <input className="border border-gray-500 m-1 rounded-lg px-4 py-2 focus:ring-2" type="number" 
+    placeholder="Enter price..." value={amount} onChange={(e) => setAmount(Number(e.target.value))}/>
+    </div>
+    <div className="flex items-center">
+      {type === 'expense' ? <TrendingDown className="text-red-500 mr-2"/> : <TrendingUp className=" text-green-500 mr-2"/>}
+    <select className="border border-gray-500 m-1 rounded-lg px-4 py-2 focus:ring-2" value={type} onChange={(e) => setType(e.target.value as 'income' | 'expense')}>
       <option value="income">income</option>
       <option value="expense">expense</option>
     </select>
-    <button className="bg-green-500 p-2 rounded text-white" onClick={() => addItem()}>add item</button>
+    </div>
+    <div className="flex items-center">
+      <Plus className="text-gray-400 mr-2"/>
+    <button className="bg-green-500 p-2 rounded text-white mb-1.5" onClick={() => addItem()}>add item</button>
+    </div>
     </div>
     <ul>{transactions.map((m) =>
   <TransactionItem key={m.id} transaction={m} onDelete={deleteItem}/>
