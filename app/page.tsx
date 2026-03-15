@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Transaction } from "./types/transaction";
 import TransactionItem from "./components/TransactionItem";
 import { Tag, CircleDollarSign, TrendingDown, TrendingUp, Plus } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -56,6 +57,12 @@ loadData();
   const total = transactions.reduce((acc, current) => current.type === 'income' ? acc + current.amount : acc - current.amount, 0);
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, current) => acc + current.amount, 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, current) => acc + current.amount, 0);
+
+  const data = [
+    {name: 'income', value: totalIncome},
+    {name: 'expense', value: totalExpense}
+  ]
+
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
     <h1 className="text-4xl text-green-600 text-center mb-2">Finance app</h1>
@@ -66,6 +73,25 @@ loadData();
       Total income: <span className="block text-3xl font-bold mt-2">{ totalIncome }</span></p>
     <p className="text-xl font-medium bg-white shadow-sm border border-gray-100 p-6 rounded-2xl text-red-600">
       Total expense: <span className="block text-3xl font-bold mt-2">{ totalExpense }</span></p>
+    </div>
+    <div className="h-64 w-full max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-md mb-8">
+    <ResponsiveContainer width="100%" height="100%">
+    <BarChart data={data}>
+      <XAxis dataKey="name" />
+      <YAxis />
+      <Tooltip />
+      
+      <Bar dataKey="value">
+      {data.map((entry, index) =>
+        <Cell key={index} 
+        fill={entry.name === 'income' ? '#22c55e' : '#ef4444'}
+        />
+       )
+      
+      }
+      </Bar>
+    </BarChart>
+    </ResponsiveContainer> 
     </div>
     <div className="flex flex-col items-center bg-white rounded-2xl shadow-md mb-1.5 py-1.5 max-w-3xl mx-auto">
       <div className="flex items-center ">
