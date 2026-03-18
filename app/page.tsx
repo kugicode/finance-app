@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { Transaction } from "./types/transaction";
 import TransactionItem from "./components/TransactionItem";
-import { Tag, CircleDollarSign, TrendingDown, TrendingUp, Plus } from "lucide-react";
+import { Tag, CircleDollarSign, TrendingDown, TrendingUp, Plus, Loader2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 export default function Home() {
@@ -12,19 +12,33 @@ export default function Home() {
   const [category, setCategory] = useState<string>('');
   const [amount, setAmount] = useState<number>(0);
   const [type, setType] = useState<'income'|'expense'>('expense');
+  const [loading, setLoading] = useState(true);
+
 const loadData = async () => {
+  setLoading(true);
+  try{
   //Use await to fetch...
   const res = await fetch('/api/transactions');
   //turn it into json format
   const data = await res.json();
   //Update your state!
   setTransactions(data);
+  }
+  catch(error){
+    console.error("error loading data", error);
+  }
+  finally{
+      setLoading(false);
+  }
 }
 
 useEffect(() =>  {
 
 loadData();
 }, []);
+
+
+
   
 
   const addItem = async () => {
@@ -81,7 +95,7 @@ loadData();
       <YAxis />
       <Tooltip />
       
-      <Bar dataKey="value">
+      <Bar dataKey="value" radius={[10, 10, 0, 0]}>
       {data.map((entry, index) =>
         <Cell key={index} 
         fill={entry.name === 'income' ? '#22c55e' : '#ef4444'}
@@ -116,9 +130,19 @@ loadData();
     <button className="bg-green-500 p-2 rounded text-white mb-1.5" onClick={() => addItem()}>add item</button>
     </div>
     </div>
+    {/* 1. Check if loading is true */}
+    { loading ? (
+      //if true show the spinner
+      <div className="flex flex-col items-center p-4">
+      <Loader2 className="animate-spin text-green-500" />
+      <p className="" >Updating list...</p>
+      </div>
+    ) : (
+      //if false, show you transaction list!
     <ul>{transactions.map((m) =>
   <TransactionItem key={m.id} transaction={m} onDelete={deleteItem}/>
     )}</ul>
+)}
     </main>
   );
 }
