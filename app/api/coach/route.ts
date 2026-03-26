@@ -13,7 +13,7 @@ export async function GET () {
     //Storing my api key in a variable called genAI
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
     //Picking the model we are using
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
 
         //Getting all the transaction data from mongodb and filtering and adding the income and expenses in seperate varaibles
     const transactions = await collection.find({}).toArray();
