@@ -99,27 +99,27 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 text-gray-900">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 py-8 px-4 sm:px-6 lg:px-8 text-gray-900 dark:text-white">
       <h1 className="text-4xl text-green-600 text-center mb-2 font-bold">Finance App</h1>
       
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mb-8 mx-auto text-center">
-        <div className="bg-white shadow-sm border border-gray-100 p-6 rounded-2xl">
+        <div className="bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm border border-gray-100 p-6 rounded-2xl">
           <p className="text-gray-500 font-medium">Total Balance</p>
           <p className="text-3xl font-bold mt-2">£{total.toFixed(2)}</p>
         </div>
-        <div className="bg-white shadow-sm border border-gray-100 p-6 rounded-2xl">
+        <div className="bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm border border-gray-100 p-6 rounded-2xl">
           <p className="text-green-600 font-medium">Total Income</p>
           <p className="text-3xl font-bold text-green-600 mt-2">£{totalIncome.toFixed(2)}</p>
         </div>
-        <div className="bg-white shadow-sm border border-gray-100 p-6 rounded-2xl">
+        <div className="bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm border border-gray-100 p-6 rounded-2xl">
           <p className="text-red-600 font-medium">Total Expense</p>
           <p className="text-3xl font-bold text-red-600 mt-2">£{totalExpense.toFixed(2)}</p>
         </div>
       </div>
 
       {/* AI Coach Box with Button */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 max-w-4xl mx-auto rounded-2xl shadow-sm border border-green-100 p-6 mb-8 relative">
+      <div className="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 dark:border-green-900 max-w-4xl mx-auto rounded-2xl shadow-sm border border-green-100 p-6 mb-8 ">
         <div className="flex justify-between items-center mb-4">
           <p className="text-xs font-bold text-green-600 uppercase tracking-wider flex items-center gap-2">
             <Sparkles size={14} className="text-amber-400" />
@@ -135,16 +135,16 @@ export default function Home() {
         </div>
         
         {adviceLoading ? (
-          <p className="text-green-700 animate-pulse font-medium italic">"The coach is thinking..."</p>
+          <p className="text-green-700 dark:text-gray-300 animate-pulse font-medium italic">"The coach is thinking..."</p>
         ) : advice ? (
-          <p className="text-green-900 italic font-medium leading-relaxed">"{advice}"</p>
+          <p className="text-green-900 dark:text-gray-300 italic font-medium leading-relaxed">"{advice}"</p>
         ) : (
           <p className="text-green-600 text-sm">Need some financial advice? Click the button!</p>
         )}
       </div>
 
       {/* Chart Section */}
-      <div className="h-64 w-full max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-md mb-8">
+      <div className="h-64 w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-2xl shadow-md mb-8">
         <ResponsiveContainer width="100%" height="100%" minHeight={200}>
           <BarChart data={data}>
             <XAxis dataKey="name" />
@@ -160,9 +160,9 @@ export default function Home() {
       </div>
 
       {/* Entry Form */}
-      <div className="flex flex-col items-center bg-white rounded-2xl shadow-md mb-8 py-6 px-4 max-w-3xl mx-auto border border-gray-100">
+      <div className="flex flex-col items-center bg-white dark:bg-gray-800 rounded-2xl shadow-md mb-8 py-6 px-4 max-w-3xl mx-auto border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap justify-center gap-4 w-full">
-          <div className="flex items-center border border-gray-300 rounded-lg px-3 py-1 focus-within:ring-2 ring-green-500">
+          <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 focus-within:ring-2 ring-green-500">
             <Tag size={18} className="text-gray-400 mr-2" />
             <input
               className="outline-none py-1 bg-transparent"
@@ -173,7 +173,7 @@ export default function Home() {
               onChange={(e) => setCategory(e.target.value.replace(/[^a-zA-Z\s]/g, ""))}
             />
           </div>
-          <div className="flex items-center border border-gray-300 rounded-lg px-3 py-1 focus-within:ring-2 ring-green-500">
+          <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 focus-within:ring-2 ring-green-500">
             <CircleDollarSign size={18} className="text-gray-400 mr-2" />
             <input
               className="outline-none py-1 bg-transparent"
@@ -190,7 +190,7 @@ export default function Home() {
             />
           </div>
           <select
-            className="border border-gray-300 rounded-lg px-3 py-1 outline-none focus:ring-2 ring-green-500 bg-white"
+            className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 outline-none focus:ring-2 ring-green-500 bg-white dark:bg-gray-800"
             value={type}
             onChange={(e) => setType(e.target.value as "income" | "expense")}
           >
