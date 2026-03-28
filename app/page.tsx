@@ -16,9 +16,11 @@ export default function Home() {
   const [advice, setAdvice] = useState("");
   const [adviceLoading, setAdviceLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const loadData = async () => {
-    setLoading(true);
+  //We add add a 'silent' parameter. If it's true we won't show the the big spinner!
+  const loadData = async (silent = false) => {
+   if (!silent) setLoading(true);
     try {
       //Use await to fetch...
       const res = await fetch("/api/transactions");
@@ -65,7 +67,7 @@ export default function Home() {
         body: JSON.stringify({ amount, category, type, date: new Date() }),
       });
       //Wait for the save, then refresh the list from the database!
-      await loadData();
+      await loadData(true);
       //Clear the inputs
       setCategory("");
       setAmount(0);
@@ -76,9 +78,11 @@ export default function Home() {
   };
 
   const deleteItem = async (id: string) => {
+    setDeletingId(id);
     //Call the API to delete an item with its unique ID.
     await fetch(`/api/transactions?id=${id}`, { method: "DELETE" });
-    await loadData();
+    await loadData(true);
+    setDeletingId(null);
   };
 
   const total = transactions.reduce(
@@ -221,7 +225,12 @@ export default function Home() {
           //if false, show you transaction list!
           <ul className="space-y-3">
             {transactions.map((m) => (
-              <TransactionItem key={m.id} transaction={m} onDelete={deleteItem} />
+              <TransactionItem 
+              key={m.id} 
+              transaction={m} 
+              onDelete={deleteItem}
+              isDeleting={deletingId === m.id}
+              />
             ))}
           </ul>
         )}
