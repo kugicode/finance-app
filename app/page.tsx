@@ -122,7 +122,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* AI Coach Box with Button */}
+      {/* AI Coach Box */}
       <div className="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 dark:border-green-900 max-w-4xl mx-auto rounded-2xl shadow-sm border border-green-100 p-6 mb-8 ">
         <div className="flex justify-between items-center mb-4">
           <p className="text-xs font-bold text-green-600 uppercase tracking-wider flex items-center gap-2">
@@ -147,13 +147,17 @@ export default function Home() {
         )}
       </div>
 
-      {/* Chart Section */}
-      <div className="h-64 w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-2xl shadow-md mb-8">
-        <ResponsiveContainer width="100%" height="100%" minHeight={200}>
+      {/* Bar Chart Section */}
+      <div className="h-80 w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 dark:border-gray-700 p-6 rounded-2xl shadow-md mb-8">
+        <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-4 text-center">Cash Flow</h3>
+        <ResponsiveContainer width="100%" height="90%">
           <BarChart data={data}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
+            <XAxis dataKey="name" stroke="#888888" fontSize={12} />
+            <YAxis stroke="#888888" fontSize={12} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px', color: '#fff' }}
+              itemStyle={{ color: '#fff' }}
+            />
             <Bar dataKey="value" radius={[10, 10, 0, 0]}>
               {data.map((entry, index) => (
                 <Cell key={index} fill={entry.name === "income" ? "#22c55e" : "#ef4444"} />
