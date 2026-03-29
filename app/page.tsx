@@ -5,6 +5,7 @@ import { Transaction } from "./types/transaction";
 import TransactionItem from "./components/TransactionItem";
 import { Tag, CircleDollarSign, TrendingDown, TrendingUp, Plus, Loader2, Sparkles } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { useSession, signIn } from "next-auth/react";
 
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -17,6 +18,31 @@ export default function Home() {
   const [adviceLoading, setAdviceLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+const {data: session, status} = useSession()
+
+//If it's still checking if you're logged in, show nothing (or a loader)
+if(status === "loading") return <div className="min-h-screen bg-gray-50 items-center justify-center">
+<Loader2 className="animate-spin text-green-600" size={40}/>
+</div>
+
+//If not logged in then show a beautiful welcome screen instead of the dashboard!
+if (!session) {
+  return(
+<div className="flex flex-col items-center justify-center min-h-[80vh]">
+<button onClick={() => signIn("google")}
+  className="bg-green-400 hover:bg-green-600 text-black px-8 py-6 rounded-2xl text-lg shadow-lg transition-all cursor-pointer"
+  >
+  Sign in to start
+</button>
+
+</div>
+
+
+
+)}
+
+
 
   //We add add a 'silent' parameter. If it's true we won't show the the big spinner!
   const loadData = async (silent = false) => {
