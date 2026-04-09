@@ -1,29 +1,40 @@
-## Finance-App
+# Finance-App Documentation
 
-This is my final year project my thesis! This project involves a smart dashboard to track money that users input and uses gemini API to give users advice for their spendings!
+## Project Overview
+The Finance-App is a comprehensive web application designed to track personal finances effectively. It provides users with a seamless experience in managing budgets, expenses, and financial goals.
 
-## The Tech stack
-React (Next.js), Typescript, and Tailwind CSS.
+## Technology Stack
+- **Frontend**: React.js with TypeScript
+- **Backend**: Node.js and Express.js
+- **Database**: MongoDB
+- **Authentication**: OAuth 2.0
+- **AI Coaching**: Integrated AI for personalized financial advice
 
-## The features I've built so far
-I Added Add/Delete logic, income vs Expense tracking, and live balance calculations.
+## Implemented Features
+- **OAuth Authentication**: Secure login and signup process using OAuth.
+- **MongoDB Integration**: Efficient data storage and management utilizing MongoDB.
+- **AI Coaching**: Provides intelligent financial advice based on user data.
+- **Dark Mode**: Aesthetic and user-friendly dark mode support.
+- **Responsive Design**: Accessible on various devices, including mobile and tablets.
+- **Input Validation**: Ensures data integrity and enhances user experience.
 
-## Upcoming features
-MongoDB integration - So data stays in the database.
-AI finance Coaching - So the AI can give users advice.
-Recharts.js - So users can see the graphs and line charts of their spending like in revolut apps.
-Responsiveness - Using tailwindcss so my app works on both PC and mobile.
+## Project Structure
+- `/client`: Contains all React frontend files.
+- `/server`: Contains all Node.js backend files.
+- `/models`: Database models for MongoDB.
+- `/routes`: API routes for the application.
 
 ## Getting Started
+1. Clone the repository: `git clone https://github.com/kugicode/finance-app`
+2. Navigate to the project directory and install dependencies: `npm install`
+3. Configure environment variables for database connection and OAuth.
+4. Run the application: `npm start` for the client and `npm run server` for the backend.
 
-First, run the development server:
+## Final Milestones
+- All features have been implemented and tested.
+- User feedback has been incorporated into the final release.
+- Ongoing maintenance and updates are planned for future improvements.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
+
+For further information, check the [GitHub repository](https://github.com/kugicode/finance-app).
