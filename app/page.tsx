@@ -6,6 +6,7 @@ import TransactionItem from "./components/TransactionItem";
 import { Tag, CircleDollarSign, TrendingDown, TrendingUp, Plus, Loader2, Sparkles } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { useSession, signIn } from "next-auth/react";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -19,40 +20,13 @@ export default function Home() {
   const [isAdding, setIsAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-const {data: session, status} = useSession()
+  const { data: session, status } = useSession();
 
-//If it's still checking if you're logged in, show nothing (or a loader)
-if(status === "loading") return <div className="min-h-screen bg-gray-50 items-center justify-center">
-<Loader2 className="animate-spin text-green-600" size={40}/>
-</div>
-
-//If not logged in then show a beautiful welcome screen instead of the dashboard!
-if (!session) {
-  return(
-<div className="flex flex-col items-center justify-center min-h-[80vh]">
-<button onClick={() => signIn("google")}
-  className="bg-green-400 hover:bg-green-600 text-black px-8 py-6 rounded-2xl text-lg shadow-lg transition-all cursor-pointer"
-  >
-  Sign in to start
-</button>
-
-</div>
-
-
-
-)}
-
-
-
-  //We add add a 'silent' parameter. If it's true we won't show the the big spinner!
   const loadData = async (silent = false) => {
-   if (!silent) setLoading(true);
+    if (!silent) setLoading(true);
     try {
-      //Use await to fetch...
       const res = await fetch("/api/transactions");
-      //turn it into json format
       const data = await res.json();
-      //Update your state!
       setTransactions(data);
     } catch (error) {
       console.error("error loading data", error);
@@ -62,50 +36,66 @@ if (!session) {
   };
 
   const fetchCoachAdvice = async () => {
-    setAdviceLoading(true); // Start the loading animation!
+    setAdviceLoading(true);
     try {
-      //Fethcing the ai coach
       const res = await fetch("/api/coach");
-      //grabbing the json
       const data = await res.json();
-      //Save the advice to a varaible!
       setAdvice(data.advice);
     } catch (error) {
       console.error("Coach error:", error);
     } finally {
-      setAdviceLoading(false); // Stop the animation!
+      setAdviceLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (session) {
+      loadData();
+    }
+  }, [session]);
+
+  // 1. Loading status check at the top
+  if (status === "loading") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh]">
+        <Loader2 className="animate-spin text-green-600" size={40} />
+      </div>
+    );
+  }
+
+  // 2. Login Wall
+  if (!session) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh]">
+        <button
+          onClick={() => signIn("google")}
+          className="bg-green-400 hover:bg-green-600 text-black px-8 py-6 rounded-2xl text-lg shadow-lg transition-all cursor-pointer"
+        >
+          Sign in to start
+        </button>
+      </div>
+    );
+  }
 
   const addItem = async () => {
-    //Checking if inputs boxes are empty.
-    if (category !== "" && amount !== 0) {
+    if (category.trim() !== "" && amount !== 0) {
       setIsAdding(true);
-      //Call the API to save the new transaction
       await fetch("/api/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        //Sending amount, category, type and date to the database!
-        body: JSON.stringify({ amount, category, type, date: new Date() }),
+        body: JSON.stringify({ amount, category: category.trim(), type, date: new Date() }),
       });
-      //Wait for the save, then refresh the list from the database!
       await loadData(true);
-      //Clear the inputs
       setCategory("");
       setAmount(0);
       setIsAdding(false);
     } else {
-      alert("Please enter a name and amount");
+      alert("Please enter a category and amount");
     }
   };
 
   const deleteItem = async (id: string) => {
     setDeletingId(id);
-    //Call the API to delete an item with its unique ID.
     await fetch(`/api/transactions?id=${id}`, { method: "DELETE" });
     await loadData(true);
     setDeletingId(null);
@@ -155,13 +145,14 @@ if (!session) {
             <Sparkles size={14} className="text-amber-400" />
             AI Coach Insight
           </p>
-          <button 
+          <motion.button
+          whileTap={{ scale: 0.95 }} 
             onClick={fetchCoachAdvice}
             disabled={adviceLoading}
             className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-all flex items-center gap-1 cursor-pointer"
           >
             {adviceLoading ? <Loader2 size={12} className="animate-spin" /> : "Get New Tip"}
-          </button>
+          </motion.button>
         </div>
         
         {adviceLoading ? (
@@ -199,67 +190,65 @@ if (!session) {
           <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 focus-within:ring-2 ring-green-500">
             <Tag size={18} className="text-gray-400 mr-2" />
             <input
-              className="outline-none py-1 bg-transparent"
+              className="outline-none py-1 bg-transparent dark:text-white"
               type="text"
               placeholder="Category"
               value={category}
-              //Added regex so that users can't type numbers in the category input
               onChange={(e) => setCategory(e.target.value.replace(/[^a-zA-Z\s]/g, ""))}
             />
           </div>
           <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 focus-within:ring-2 ring-green-500">
             <CircleDollarSign size={18} className="text-gray-400 mr-2" />
             <input
-              className="outline-none py-1 bg-transparent"
+              className="outline-none py-1 bg-transparent dark:text-white"
               type="number"
               min="0"
               placeholder="Price"
-              //setting amount to blank at the start and if user typed a number other than 0 Add that instead.
               value={amount === 0 ? "" : amount}
               onChange={(e) => {
                 const val = Number(e.target.value);
-                //Only updates if it 0 or higher!
                 if (val >= 0) setAmount(val);
               }}
             />
           </div>
           <select
-            className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 outline-none focus:ring-2 ring-green-500 bg-white dark:bg-gray-800"
+            className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 outline-none focus:ring-2 ring-green-500 bg-white dark:bg-gray-800 dark:text-white"
             value={type}
             onChange={(e) => setType(e.target.value as "income" | "expense")}
           >
             <option value="income">Income</option>
             <option value="expense">Expense</option>
           </select>
-          <button
+          <motion.button
+          whileTap={{ scale: 0.95 }}
             disabled={isAdding}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors cursor-pointer"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors cursor-pointer justify-center"
             onClick={addItem}
           >
-            {isAdding ? <Loader2 size={18} className="animate-spin"/> : <Plus size={18} />}
-            {isAdding ? "Adding..." : "Add"}
-          </button>
+            {isAdding ? (
+              <> <Loader2 size={18} className="animate-spin" />.....</>
+            ) : (
+              <> <Plus size={18} /> Add </>
+            )}
+          </motion.button>
         </div>
       </div>
 
       {/* Transaction List */}
       <div className="max-w-4xl mx-auto">
-        {/* 1. Check if loading is true */}
         {loading ? (
-          //if true show the spinner
           <div className="flex flex-col items-center p-8">
             <Loader2 className="animate-spin text-green-500 w-10 h-10" />
-            <p className="mt-2 text-gray-500">Updating list...</p>
+            <p className="mt-2 text-gray-500 text-center">Updating list...</p>
           </div>
         ) : (
-          //if false, show you transaction list!
           <ul className="space-y-3">
             {transactions.map((m) => (
               <TransactionItem 
-              key={m.id} 
-              transaction={m} 
-              onDelete={deleteItem}
-              isDeleting={deletingId === m.id}
+                key={m.id} 
+                transaction={m} 
+                onDelete={deleteItem}
+                isDeleting={deletingId === m.id}
               />
             ))}
           </ul>

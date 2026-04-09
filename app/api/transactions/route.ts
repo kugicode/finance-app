@@ -1,88 +1,94 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 /**
- * GET: Fetches all transactions from the database.
+ * GET: Fetches transactions ONLY for the logged-in user.
  */
 export async function GET() {
     try {
-        // 1. Establish database connection
+        const session = await getServerSession(authOptions);
+        if(!session || !session.user?.email){
+            return NextResponse.json({error: "Unauthorized"}, {status: 401});
+        }
+
         const client = await clientPromise;
         const db = client.db("Finance-App");
         const collection = db.collection("transactions");
 
-        // 2. Retrieve all documents as an array
-        const transactions = await collection.find({}).toArray();
-        //Making the object _id to a string called id so frontend can talk to it!
+        // ONLY fetch transactions that match the user's email
+        const transactions = await collection.find({userEmail: session.user.email}).toArray();
+        
         const mappedTransactions = transactions.map(item => ({...item, id: item._id.toString()}))
         return NextResponse.json(mappedTransactions);
     } catch (error) {
         console.error("GET Error:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch transactions" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to fetch transactions" }, { status: 500 });
     }
 }
 
 /**
- * POST: Validates and saves a new transaction.
+ * POST: Saves a new transaction with the user's email attached.
  */
 export async function POST(request: Request) {
     try {
-        // 1. Unpack the incoming request body
+        const session = await getServerSession(authOptions);
+        if(!session || !session.user?.email){
+            return NextResponse.json({error: "Unauthorized"}, {status: 401});
+        }
+
         const body = await request.json();
         const { amount, category, type, date } = body;
 
-            //Robust validation! check if fields are missing OR have wrong data!
-            if(
-                typeof amount !=='number' || amount <= 0 ||
-                !category || category.trim() === "" ||
-                !['income', 'expense'].includes(type) ||
-                !date
-            ){
-            return NextResponse.json(
-                { error: "Wait! You forgot some fields!" },
-                { status: 400 }
-            )
+        if(typeof amount !=='number' || amount <= 0 || !category || category.trim() === "" || !['income', 'expense'].includes(type) || !date){
+            return NextResponse.json({ error: "Missing or invalid fields!" }, { status: 400 });
         };
-        // 3. Database connection
+
         const client = await clientPromise;
         const db = client.db("Finance-App");
         const collection = db.collection("transactions");
 
-        // 4. Create the new document (saving only the fields we want)
-        const newEntry = { amount, category, type, date: new Date(date) };
+        const newEntry = { 
+            amount, 
+            category, 
+            type, 
+            date: new Date(date), 
+            userEmail: session.user.email // Tagging the data!
+        };
         const result = await collection.insertOne(newEntry);
-
-        // 5. Return the result with a 201 "Created" status
         return NextResponse.json(result, { status: 201 });
     } catch (error) {
         console.error("POST Error:", error);
-        return NextResponse.json(
-            { error: "Failed to save transaction" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to save transaction" }, { status: 500 });
     }
 }
 
-export async function DELETE(request: Request,){
+/**
+ * DELETE: Only allows deleting if the user owns the transaction.
+ */
+export async function DELETE(request: Request){
     try{
-    //Grab the ID from the URL search query!
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-    //Database connection
-    const client = await clientPromise;
-    const db = client.db("Finance-App");
-    const collection = db.collection("transactions");
-        //Delete this id requested from the collection!
-    const result = await collection.deleteOne({_id: new ObjectId(id as string)});
-    return NextResponse.json({message: "Transaction deleted sucessfully", result});
-    }
-    catch(error){
+        const session = await getServerSession(authOptions);
+        if(!session || !session.user?.email){
+            return NextResponse.json({error: "Unauthorized"}, {status: 401});
+        }
+
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get("id");
+
+        const client = await clientPromise;
+        const db = client.db("Finance-App");
+        const collection = db.collection("transactions");
+
+        const result = await collection.deleteOne({
+            _id: new ObjectId(id as string),
+            userEmail: session.user.email // Security check!
+        });
+        return NextResponse.json({message: "Deleted successfully", result});
+    } catch(error){
         console.error("DELETE Error:", error);
         return NextResponse.json({error: "Failed to delete transaction"}, {status: 500});
     }
-    
 }

@@ -1,40 +1,41 @@
 import clientPromise from "@/lib/mongodb";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export async function GET () {
-    try{
-    //Awaiting client promise so we get the mongodb object
-    const client = await clientPromise;
-    //saving the databases name as db
-    const db = client.db('Finance-App');
-    const collection = db.collection('transactions');
-    
-    //Storing my api key in a variable called genAI
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
-    //Picking the model we are using
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
+export async function GET() {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user?.email) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
-        //Getting all the transaction data from mongodb and filtering and adding the income and expenses in seperate varaibles
-    const transactions = await collection.find({}).toArray();
-    //
-    let summary = "";
-    summary = transactions.map((item) => item.type + " - " + item.category + ": £" + item.amount).join(", ");
+        const client = await clientPromise;
+        const db = client.db('Finance-App');
+        const collection = db.collection('transactions');
 
-        const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, current) => acc + current.amount, 0);
-        const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, current) => acc + current.amount, 0);
-        //The prompt we will use for the AI to see.
-        const prompt = `
-        Here is a list my user's spendings: ${summary}. Give them one specific tip, please make it short and simple!`;
-        //We are giving the model the prompt!
+        // Fetch ONLY this user's data for the AI to analyze
+        const transactions = await collection.find({ userEmail: session.user.email }).toArray();
+
+        if (transactions.length === 0) {
+            return NextResponse.json({ advice: "Add some transactions so I can give you personalized advice! 📈" });
+        }
+
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        let summary = transactions.map((item) => `${item.type} - ${item.category}: £${item.amount}`).join(", ");
+
+        const prompt = `You are a financial coach. Here is a list of my user's spending: ${summary}. Give them ONE specific, friendly tip. Keep it short!`;
+
         const result = await model.generateContent(prompt);
-        //Extracting the actual message.
         const advice = await result.response.text();
-        return NextResponse.json({ advice });
-    }
 
-    catch(error){
+        return NextResponse.json({ advice });
+
+    } catch (error) {
         console.log(error);
-        return NextResponse.json({message: "Sorry an error has occured!"});
+        return NextResponse.json({ message: "Sorry an error occurred!" }, { status: 500 });
     }
-    }
+}
