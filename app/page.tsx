@@ -232,6 +232,11 @@ export default function Home() {
             )}
           </motion.button>
         </div>
+        
+            <div>
+              {amount > 99 && type === "expense" ?(<p>That's a big amount!</p>) : (<></>)}
+            </div>
+        
       </div>
 
       {/* Transaction List */}
