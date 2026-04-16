@@ -4,7 +4,7 @@
 The Finance-App is a comprehensive web application designed to track personal finances effectively. It provides users with a seamless experience in managing budgets, expenses, and financial goals.
 
 ## 🌐 Live Demo
-Check out the live app here: [https://finance-app-bice-ten.vercel.app](https://finance-app-bice-ten.vercel.app)
+Check out the live app here: https://finance-app-fcqu.vercel.app/
 
 ## Technology Stack
 - **Frontend**: React.js with TypeScript
